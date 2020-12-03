@@ -158,7 +158,11 @@ class Python3(Manager):
         )
 
     def _install(self, package):
-        return self._run_manager_command(["python3", "-m", "pip", "install", package])
+        command = ["python3", "-m", "pip", "install"]
+        if is_mac():
+            command.append("--user")
+        command.append(package)
+        return self._run_manager_command(command)
 
     def _uninstall(self, package):
         return self._run_manager_command(
