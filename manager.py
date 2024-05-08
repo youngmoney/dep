@@ -114,6 +114,9 @@ class Brew(Manager):
     def supports_current_platform(self):
         return is_mac()
 
+    def _package_version_delimiter(self):
+        return ":" # fake, was @
+
     def _ignored_packages(self):
         return ["pip3", "python3", "pip", "python", "apt", "brew"]
 
@@ -132,7 +135,7 @@ class Brew(Manager):
 
 class Python3(Manager):
     def _ignored_packages(self):
-        return ["setuptools", "wheel", "pip", "pip3", "pip2"]
+        return ["setuptools", "wheel", "pip", "pip3", "pip2", "macholib", "six", "future"]
 
     def _package_version_delimiter(self):
         return "="
@@ -162,6 +165,8 @@ class Python3(Manager):
         if is_mac():
             command.append("--user")
         command.append(package)
+        if is_mac():
+            pass # command.append("--break-system-packages")
         return self._run_manager_command(command)
 
     def _uninstall(self, package):
@@ -181,13 +186,13 @@ class Cask(Manager):
         return is_mac()
 
     def _get_list(self):
-        return self._run_as_list(["brew", "cask", "list"])
+        return self._run_as_list(["brew", "list", "--cask"])
 
     def _install(self, package):
-        return self._run_manager_command(["brew", "cask", "install", package])
+        return self._run_manager_command(["brew", "install", "--cask", package])
 
     def _uninstall(self, package):
-        return self._run_manager_command(["brew", "cask", "uninstall", package])
+        return self._run_manager_command(["brew", "uninstall", "--cask", package])
 
 
 class Apt(Manager):
@@ -300,17 +305,12 @@ def bootstrap():
     if is_mac():
         if not shutil.which("brew"):
             print("installing brew...")
-            if not run(
-                'ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
-            ):
-                return False
+            print('please run:')
+            print('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+            return False
         run(["brew", "update"])
         brew = Brew()
         all_brew = brew.get_list(all=True)
-        if "python" not in all_brew:
-            print("installing python (3)...")
-            if not brew.install("python"):
-                return False
     else:
         run(
             [
