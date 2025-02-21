@@ -25,7 +25,7 @@ def get_all(base="~/.DEP"):
     packages = []
     for fileline in filelines:
         fileline = fileline.rstrip("\n")
-        if len(fileline) == 0:
+        if len(fileline) == 0 or fileline.startswith("#"):
             continue
         package = Package.FromString(fileline)
         if package.manager == "include":

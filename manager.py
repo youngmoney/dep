@@ -115,7 +115,7 @@ class Brew(Manager):
         return is_mac()
 
     def _package_version_delimiter(self):
-        return ":" # fake, was @
+        return ":"  # fake, was @
 
     def _ignored_packages(self):
         return ["pip3", "python3", "pip", "python", "apt", "brew"]
@@ -135,7 +135,16 @@ class Brew(Manager):
 
 class Python3(Manager):
     def _ignored_packages(self):
-        return ["setuptools", "wheel", "pip", "pip3", "pip2", "macholib", "six", "future"]
+        return [
+            "setuptools",
+            "wheel",
+            "pip",
+            "pip3",
+            "pip2",
+            "macholib",
+            "six",
+            "future",
+        ]
 
     def _package_version_delimiter(self):
         return "="
@@ -166,7 +175,7 @@ class Python3(Manager):
             command.append("--user")
         command.append(package)
         if is_mac():
-            pass # command.append("--break-system-packages")
+            pass  # command.append("--break-system-packages")
         return self._run_manager_command(command)
 
     def _uninstall(self, package):
@@ -269,7 +278,7 @@ def is_mac():
 
 def get_managers():
     return {
-        "python3": Python3(),
+        # "python3": Python3(),
         "brew": Brew(),
         "cask": Cask(),
         "apt": Apt(),
@@ -280,7 +289,11 @@ def get_managers():
 
 def run(args, shell=False):
     result = subprocess.run(
-        args, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell,
+        args,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        shell=shell,
     )
     returncode = result.returncode
     out = result.stdout
@@ -305,8 +318,10 @@ def bootstrap():
     if is_mac():
         if not shutil.which("brew"):
             print("installing brew...")
-            print('please run:')
-            print('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+            print("please run:")
+            print(
+                '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+            )
             return False
         run(["brew", "update"])
         brew = Brew()
